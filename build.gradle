@@ -1,25 +1,8 @@
-buildscript {
-    ext.kotlin_version = '0.12.1230'
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-}
-
-
 plugins {
     id "com.jfrog.bintray" version "1.1"
     id "com.github.jruby-gradle.base" version "0.1.5"
     id "java"
 }
-
-apply plugin: 'kotlin'
-sourceSets {
-    main.java.srcDirs += 'src/main/kotlin'
-}
-
 
 import com.github.jrubygradle.JRubyExec
 repositories {
@@ -37,7 +20,6 @@ dependencies {
     provided "org.embulk:embulk-core:0.7.4"
     // compile "YOUR_JAR_DEPENDENCY_GROUP:YOUR_JAR_DEPENDENCY_MODULE:YOUR_JAR_DEPENDENCY_VERSION"
     testCompile "junit:junit:4.+"
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 
 task classpath(type: Copy, dependsOn: ["jar"]) {
