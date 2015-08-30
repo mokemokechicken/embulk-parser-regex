@@ -4,6 +4,7 @@ package org.embulk.parser.regex;
 // https://github.com/frsyuki/embulk-parser-msgpack/blob/master/src/main/java/org/embulk/parser/msgpack/MsgpackParserPlugin.java
 
 import com.google.common.base.Optional;
+import org.embulk.EmbulkEmbed;
 import org.embulk.config.*;
 import org.embulk.spi.*;
 import org.embulk.spi.time.TimestampFormatter;
@@ -28,6 +29,10 @@ public class RegexParserPlugin implements ParserPlugin {
 
         @Config("columns")
         public SchemaConfig getSchemaConfig();
+
+        @Config("skip_if_unmatch")
+        @ConfigDefault("false")
+        public boolean getSkipIfUnmatch();
     }
 
     public interface PluginTaskFormatter
@@ -62,7 +67,12 @@ public class RegexParserPlugin implements ParserPlugin {
                 }
                 Matcher matcher = pattern.matcher(line);
                 if (!matcher.matches()) {
-                    throw new RuntimeException("Unmatched Line: " + line);
+                    if (task.getSkipIfUnmatch()) {
+                        // TODO: How to Log?
+                        continue;
+                    } else {
+                        throw new RuntimeException("Unmatched Line: " + line);
+                    }
                 }
 
                 for (Map.Entry<String, DynamicColumnSetter> pair : setterMap.entrySet()) {

@@ -1,0 +1,16 @@
+in:
+  type: file
+  path_prefix: /Users/k_morishita/Documents/workspace/embulk_plugins/embulk-parser-regex/sample/simple/data_simple_
+  parser:
+    charset: UTF-8
+    newline: LF
+    type: regex
+    regex: '^(?<name>[^|]+)\|(?<age>[0-9]+)\|(?<time>[^|]+)$'
+    skip_if_unmatch: true
+    columns:
+      - {name: name, type: string}
+      - {name: age, type: long}
+      - {name: time, type: timestamp, format: '%Y-%m-%d %H:%M:%S %z'}
+out:
+  type: stdout
+
