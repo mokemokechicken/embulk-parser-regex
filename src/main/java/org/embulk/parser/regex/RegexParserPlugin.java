@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 public class RegexParserPlugin implements ParserPlugin {
 
     public interface PluginTask extends Task, LineDecoder.DecoderTask, TimestampParser.Task {
