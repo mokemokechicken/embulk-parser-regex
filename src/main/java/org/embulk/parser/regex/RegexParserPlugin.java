@@ -100,7 +100,7 @@ public class RegexParserPlugin implements ParserPlugin {
             String name = c.getName();
             Type type = c.getType();
             Column column = c.toColumn(index);
-            String regexName = c.getOption().get(String.class, "regexName", name);
+            String regexName = c.getOption().get(String.class, "regex_name", name);
 
             DefaultValueSetter defaultValue = new NullDefaultValueSetter();
             DynamicColumnSetter setter;
