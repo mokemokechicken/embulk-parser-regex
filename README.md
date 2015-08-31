@@ -38,7 +38,10 @@ in:
     - {name: out_byte, type: long, regexName: outByte}
 ```
 
-you don't have to write `parser:` section in the configuration file. After writing `in:` section, you can let embulk guess `parser:` section using this command:
+### Guess
+Some apache LogFormats can be guessed.
+After writing `in:` section, you can let embulk guess `parser:` section using this command:
+
 
 ```
 $ embulk gem install embulk-parser-regex
