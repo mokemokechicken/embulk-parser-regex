@@ -100,7 +100,7 @@ public class RegexParserPlugin implements ParserPlugin {
             String name = c.getName();
             Type type = c.getType();
             Column column = c.toColumn(index);
-
+            String regexName = c.getOption().get(String.class, "regexName", name);
 
             DefaultValueSetter defaultValue = new NullDefaultValueSetter();
             DynamicColumnSetter setter;
@@ -127,7 +127,7 @@ public class RegexParserPlugin implements ParserPlugin {
             } else {
                 throw new ConfigException("Unknown column type: " + type);
             }
-            setterMap.put(name, setter);
+            setterMap.put(regexName, setter);
         }
 
         return setterMap;
