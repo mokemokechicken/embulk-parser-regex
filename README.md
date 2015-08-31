@@ -21,7 +21,7 @@ in:
   type: any file input plugin type
   parser:
     type: regex
-    regex: ^(?<remoteHost>[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}) (?<identity>\S+) (?<user>\S+) \[(?<datetime>[^\]]*)\] "((?<method>\S+) (?<path>\S+) (?<protocol>HTTP/\d+\.\d+)|-)" (?<status>[0-9]+) (?<size>[0-9]+|-) "(?<referer>[^"]*)" "(?<userAgent>[^"]*)" (?<inByte>[0-9]+) (?<outByte>[0-9]+)$
+    regex: ^(?<remoteHost>[.:0-9]+) (?<identity>\S+) (?<user>\S+) \[(?<datetime>[^\]]*)\] "((?<method>\S+) (?<path>\S+) (?<protocol>HTTP/\d+\.\d+)|-)" (?<status>[0-9]+) (?<size>[0-9]+|-) "(?<referer>[^"]*)" "(?<userAgent>[^"]*)" (?<inByte>[0-9]+) (?<outByte>[0-9]+)$
     columns:
     - {name: remote_host, type: string, regexName: remoteHost}
     - {name: identity, type: string}
