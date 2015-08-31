@@ -7,8 +7,8 @@ in:
     type: regex
     regex: ^(?<forwardedFor>[.:0-9]+|-) (?<remoteHost>[.:0-9]+) (?<identity>\S+) (?<user>\S+) \[(?<datetime>[^\]]*)\] "((?<method>\S+) (?<path>\S+) (?<protocol>HTTP/\d+\.\d+)|-)" (?<status>[0-9]+) (?<size>[0-9]+|-) "(?<referer>[^"]*)" "(?<userAgent>[^"]*)"$
     columns:
-    - {name: x_forwarded_for, type: string, regexName: forwardedFor}
-    - {name: remote_host, type: string, regexName: remoteHost}
+    - {name: x_forwarded_for, type: string, regex_name: forwardedFor}
+    - {name: remote_host, type: string, regex_name: remoteHost}
     - {name: identity, type: string}
     - {name: user, type: string}
     - {name: datetime, type: timestamp, format: '%d/%b/%Y:%H:%M:%S %z'}
@@ -18,5 +18,5 @@ in:
     - {name: status, type: long}
     - {name: size, type: long}
     - {name: referer, type: string}
-    - {name: user_agent, type: string, regexName: userAgent}
+    - {name: user_agent, type: string, regex_name: userAgent}
 out: {type: stdout}

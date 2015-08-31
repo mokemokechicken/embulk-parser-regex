@@ -26,12 +26,12 @@ module Embulk
 
       def apache_x_forwarded_for
         RegexApacheLogGuesser.new
-          .ip_or_minus(:x_forwarded_for, regexName: 'forwardedFor')
+          .ip_or_minus(:x_forwarded_for, regex_name: 'forwardedFor')
       end
 
       def apache_common(config, sample_lines)
         RegexApacheLogGuesser.new
-          .ip(:remote_host, regexName: 'remoteHost').token(:identity).token(:user)
+          .ip(:remote_host, regex_name: 'remoteHost').token(:identity).token(:user)
           .kakko(:datetime, format: '%d/%b/%Y:%H:%M:%S %z', type: 'timestamp')
           .method_path_protocol
           .integer(:status).integer_or_minus(:size)
@@ -39,12 +39,12 @@ module Embulk
 
       def apache_combined(config, sample_lines)
         apache_common(config, sample_lines)
-          .string(:referer).string(:user_agent, regexName: 'userAgent')
+          .string(:referer).string(:user_agent, regex_name: 'userAgent')
       end
 
       def apache_combinedio(config, sample_lines)
         apache_combined(config, sample_lines)
-          .integer(:in_byte, regexName: 'inByte').integer(:out_byte, regexName: 'outByte')
+          .integer(:in_byte, regex_name: 'inByte').integer(:out_byte, regex_name: 'outByte')
       end
     end
 
@@ -82,49 +82,49 @@ module Embulk
       end
 
       def ip(name, opts={})
-        @patterns << "(?<#{opts[:regexName] || name}>[.:0-9]+)"
+        @patterns << "(?<#{opts[:regex_name] || name}>[.:0-9]+)"
         @columns << {:name => name, :type => 'string'}.merge(opts)
         self
       end
 
       def ip_or_minus(name, opts={})
-        @patterns << "(?<#{opts[:regexName] || name}>[.:0-9]+|-)"
+        @patterns << "(?<#{opts[:regex_name] || name}>[.:0-9]+|-)"
         @columns << {:name => name, :type => 'string'}.merge(opts)
         self
       end
 
       def token(name, opts={})
-        @patterns << "(?<#{opts[:regexName] || name}>\\S+)"
+        @patterns << "(?<#{opts[:regex_name] || name}>\\S+)"
         @columns << {:name => name, :type => 'string'}.merge(opts)
         self
       end
 
       def string(name, opts={})
-        @patterns << "\"(?<#{opts[:regexName] || name}>[^\"]*)\""
+        @patterns << "\"(?<#{opts[:regex_name] || name}>[^\"]*)\""
         @columns << {:name => name, :type => 'string'}.merge(opts)
         self
       end
 
       def string_or_minus(name, opts={})
-        @patterns << "\"(?<#{opts[:regexName] || name}>[^\"]*|-)\""
+        @patterns << "\"(?<#{opts[:regex_name] || name}>[^\"]*|-)\""
         @columns << {:name => name, :type => 'string'}.merge(opts)
         self
       end
 
       def integer(name, opts={})
-        @patterns << "(?<#{opts[:regexName] || name}>[0-9]+)"
+        @patterns << "(?<#{opts[:regex_name] || name}>[0-9]+)"
         @columns << {:name => name, :type => 'long'}.merge(opts)
         self
       end
 
       def integer_or_minus(name, opts={})
-        @patterns << "(?<#{opts[:regexName] || name}>[0-9]+|-)"
+        @patterns << "(?<#{opts[:regex_name] || name}>[0-9]+|-)"
         @columns << {:name => name, :type => 'long'}.merge(opts)
         self
       end
 
       def kakko(name, opts={})
-        @patterns << "\\[(?<#{opts[:regexName] || name}>[^\\]]*)\\]"
+        @patterns << "\\[(?<#{opts[:regex_name] || name}>[^\\]]*)\\]"
         @columns << {:name => name, :type => 'string'}.merge(opts)
         self
       end

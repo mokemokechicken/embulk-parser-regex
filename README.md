@@ -11,7 +11,7 @@ A simple parser Using Regular Expression.
 
 - **regex**: regular expression that must use [Named Capturing Group](https://blogs.oracle.com/xuemingshen/entry/named_capturing_group_in_jdk7)  (string, required)
 - **columns**: column definition (list of object)
-  - **regexName**: 'Named Capturing Group' can only include `[a-zA-Z0-9]`, so alias group name in regex can be specified (string, default: `<name> attr value`)
+  - **regex_name**: 'Named Capturing Group' can only include `[a-zA-Z0-9]`, so alias group name in regex can be specified (string, default: `<name> attr value`)
 - **skip_if_unmatch**: if false, when a line don't match the regex, raise RuntimeException. If true, skip the line.  (boolean, default: `false`)
 
 ## Example
@@ -23,7 +23,7 @@ in:
     type: regex
     regex: ^(?<remoteHost>[.:0-9]+) (?<identity>\S+) (?<user>\S+) \[(?<datetime>[^\]]*)\] "((?<method>\S+) (?<path>\S+) (?<protocol>HTTP/\d+\.\d+)|-)" (?<status>[0-9]+) (?<size>[0-9]+|-) "(?<referer>[^"]*)" "(?<userAgent>[^"]*)" (?<inByte>[0-9]+) (?<outByte>[0-9]+)$
     columns:
-    - {name: remote_host, type: string, regexName: remoteHost}
+    - {name: remote_host, type: string, regex_name: remoteHost}
     - {name: identity, type: string}
     - {name: user, type: string}
     - {name: datetime, type: timestamp, format: '%d/%b/%Y:%H:%M:%S %z'}
@@ -33,9 +33,9 @@ in:
     - {name: status, type: long}
     - {name: size, type: long}
     - {name: referer, type: string}
-    - {name: user_agent, type: string, regexName: userAgent}
-    - {name: in_byte, type: long, regexName: inByte}
-    - {name: out_byte, type: long, regexName: outByte}
+    - {name: user_agent, type: string, regex_name: userAgent}
+    - {name: in_byte, type: long, regex_name: inByte}
+    - {name: out_byte, type: long, regex_name: outByte}
 ```
 
 ### Guess
