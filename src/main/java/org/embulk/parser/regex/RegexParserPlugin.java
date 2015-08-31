@@ -70,7 +70,7 @@ public class RegexParserPlugin implements ParserPlugin {
                         // TODO: How to Log?
                         continue;
                     } else {
-                        throw new RuntimeException("Unmatched Line: " + line);
+                        throw new DataException("Unmatched Line: " + line);
                     }
                 }
 
