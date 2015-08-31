@@ -8,80 +8,69 @@ module Embulk
     #      one of binary guess (GuessPlugin), text guess (TextGuessPlugin),
     #      or line guess (LineGuessPlugin).
 
-    #class Regex < GuessPlugin
-    #  Plugin.register_guess("regex", self)
-    #
-    #  def guess(config, sample_buffer)
-    #    if sample_buffer[0,2] == GZIP_HEADER
-    #      guessed = {}
-    #      guessed["type"] = "regex"
-    #      guessed["property1"] = "guessed-value"
-    #      return {"parser" => guessed}
-    #    else
-    #      return {}
-    #    end
-    #  end
-    #end
-
-    #class Regex < TextGuessPlugin
-    #  Plugin.register_guess("regex", self)
-    #
-    #  def guess_text(config, sample_text)
-    #    js = JSON.parse(sample_text) rescue nil
-    #    if js && js["mykeyword"] == "keyword"
-    #      guessed = {}
-    #      guessed["type"] = "regex"
-    #      guessed["property1"] = "guessed-value"
-    #      return {"parser" => guessed}
-    #    else
-    #      return {}
-    #    end
-    #  end
-    #end
-
     class Regex < LineGuessPlugin
       Plugin.register_guess("regex", self)
 
       def guess_lines(config, sample_lines)
-        guessed = apache_common(config, sample_lines)
-        if guessed
-          return {"parser" => guessed}
+        guesser_list = []
+        guesser_list << apache_common(config, sample_lines)
+        guesser_list << apache_combined(config, sample_lines)
+        guesser_list << apache_combinedio(config, sample_lines)
+        guesser_list << apache_x_forwarded_for + apache_combined(config, sample_lines)
+        guesser_list << apache_x_forwarded_for + apache_combinedio(config, sample_lines)
+        guesser_list.each do |g|
+          return {"parser" => g.guessed} if g.match_all?(sample_lines)
         end
-
         return {}
       end
 
+      def apache_x_forwarded_for
+        RegexApacheLogGuesser.new
+          .ip_or_minus(:x_forwarded_for, regexName: 'forwardedFor')
+      end
+
       def apache_common(config, sample_lines)
-        g = RegexApacheLogGuesser.new
-        g.ip(:remote_host, regexName: 'remoteHost').token(:identity).token(:user)
+        RegexApacheLogGuesser.new
+          .ip(:remote_host, regexName: 'remoteHost').token(:identity).token(:user)
           .kakko(:datetime, format: '%d/%b/%Y:%H:%M:%S %z', type: 'timestamp')
           .method_path_protocol
           .integer(:status).integer_or_minus(:size)
+      end
+
+      def apache_combined(config, sample_lines)
+        apache_common(config, sample_lines)
           .string(:referer).string(:user_agent, regexName: 'userAgent')
+      end
+
+      def apache_combinedio(config, sample_lines)
+        apache_combined(config, sample_lines)
           .integer(:in_byte, regexName: 'inByte').integer(:out_byte, regexName: 'outByte')
-
-        ptn = g.compile
-        all_line_matched = sample_lines.all? do |line|
-          ptn.match(line)
-        end
-
-        if all_line_matched
-          guessed = {}
-          guessed["type"] = "regex"
-          guessed["regex"] = g.pattern_str
-          guessed["columns"] = g.columns
-          return guessed
-        end
-        return nil
       end
     end
 
     class RegexApacheLogGuesser
-      attr_reader :columns
+      attr_reader :columns, :patterns
 
-      def initialize
-        @patterns = []
-        @columns = []
+      def initialize(patterns=nil, columns=nil)
+        @patterns = (patterns || [])
+        @columns = (columns || [])
+      end
+
+      def +(guesser)
+        RegexApacheLogGuesser.new(@patterns + guesser.patterns, @columns + guesser.columns)
+      end
+
+      def match_all?(lines)
+        ptn = compile
+        lines.all? {|line| ptn.match(line)}
+      end
+
+      def guessed
+          ret = {}
+          ret["type"] = "regex"
+          ret["regex"] = pattern_str
+          ret["columns"] = columns
+          ret
       end
 
       def compile
@@ -93,13 +82,13 @@ module Embulk
       end
 
       def ip(name, opts={})
-        @patterns << "(?<#{opts[:regexName] || name}>[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})"
+        @patterns << "(?<#{opts[:regexName] || name}>[.:0-9]+)"
         @columns << {:name => name, :type => 'string'}.merge(opts)
         self
       end
 
       def ip_or_minus(name, opts={})
-        @patterns << "(?<#{opts[:regexName] || name}>[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}|-)"
+        @patterns << "(?<#{opts[:regexName] || name}>[.:0-9]+|-)"
         @columns << {:name => name, :type => 'string'}.merge(opts)
         self
       end
@@ -148,8 +137,5 @@ module Embulk
         self
       end
     end
-
-
-
   end
 end

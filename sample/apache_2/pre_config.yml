@@ -1,6 +1,6 @@
 in:
   type: file
-  path_prefix: /Users/k_morishita/Documents/workspace/embulk_plugins/embulk-parser-regex/sample/apache_1/data_apache_
+  path_prefix: sample/apache_2/data_apache_
   parser:
     charset: UTF-8
     newline: LF

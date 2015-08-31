@@ -1,12 +1,13 @@
 in:
   type: file
-  path_prefix: sample/apache_1/data_apache_
+  path_prefix: sample/apache_2/data_apache_
   parser:
     charset: UTF-8
     newline: LF
     type: regex
-    regex: ^(?<remoteHost>[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}) (?<identity>\S+) (?<user>\S+) \[(?<datetime>[^\]]*)\] "((?<method>\S+) (?<path>\S+) (?<protocol>HTTP/\d+\.\d+)|-)" (?<status>[0-9]+) (?<size>[0-9]+|-) "(?<referer>[^"]*)" "(?<userAgent>[^"]*)" (?<inByte>[0-9]+) (?<outByte>[0-9]+)$
+    regex: ^(?<forwardedFor>[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}|-) (?<remoteHost>[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}) (?<identity>\S+) (?<user>\S+) \[(?<datetime>[^\]]*)\] "((?<method>\S+) (?<path>\S+) (?<protocol>HTTP/\d+\.\d+)|-)" (?<status>[0-9]+) (?<size>[0-9]+|-) "(?<referer>[^"]*)" "(?<userAgent>[^"]*)"$
     columns:
+    - {name: x_forwarded_for, type: string, regexName: forwardedFor}
     - {name: remote_host, type: string, regexName: remoteHost}
     - {name: identity, type: string}
     - {name: user, type: string}
@@ -18,6 +19,4 @@ in:
     - {name: size, type: long}
     - {name: referer, type: string}
     - {name: user_agent, type: string, regexName: userAgent}
-    - {name: in_byte, type: long, regexName: inByte}
-    - {name: out_byte, type: long, regexName: outByte}
 out: {type: stdout}
