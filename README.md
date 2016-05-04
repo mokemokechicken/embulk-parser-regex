@@ -53,3 +53,9 @@ $ embulk guess -g regex config.yml -o guessed.yml
 ```
 $ ./gradlew gem  # -t to watch change of files and rebuild continuously
 ```
+
+## Run checkstyle:
+
+```
+$ ./gradlew check
+```
