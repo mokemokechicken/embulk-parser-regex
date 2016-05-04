@@ -14,6 +14,7 @@ import org.embulk.spi.util.DynamicColumnSetter;
 import org.embulk.spi.util.LineDecoder;
 import org.embulk.spi.util.Timestamps;
 import org.embulk.spi.util.dynamic.*;
+import org.slf4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,6 +43,12 @@ public class RegexParserPlugin implements ParserPlugin {
             extends Task, TimestampFormatter.TimestampColumnOption {
     }
 
+    private final Logger log;
+
+    public RegexParserPlugin() {
+        log = Exec.getLogger(RegexParserPlugin.class);
+    }
+
     public void transaction(ConfigSource config, ParserPlugin.Control control) {
         PluginTask task = config.loadConfig(PluginTask.class);
         control.run(task.dump(), task.getSchemaConfig().toSchema());
@@ -59,18 +66,23 @@ public class RegexParserPlugin implements ParserPlugin {
                 timestampParsers, taskSource.loadTask(PluginTaskFormatter.class));
 
         while (input.nextFile()) {
+
+            int lineNumber = 0;
+
             while (true) {
                 String line = lineDecoder.poll();
+                lineNumber++;
+
                 if (line == null) {
                     break;
                 }
                 Matcher matcher = pattern.matcher(line);
                 if (!matcher.matches()) {
                     if (task.getSkipIfUnmatch()) {
-                        // TODO: How to Log?
+                        log.warn(String.format("Skipped unmatched line %d: %s", lineNumber, line));
                         continue;
                     } else {
-                        throw new DataException("Unmatched Line: " + line);
+                        throw new DataException(String.format("Unmatched Line at line %d: %s", lineNumber, line));
                     }
                 }
 
